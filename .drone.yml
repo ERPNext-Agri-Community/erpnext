@@ -1,0 +1,10 @@
+pipeline:
+  build:
+      image: ruby:alpine
+      secrets: [ danger_github_api_token ]
+      commands:
+        - apk update
+        - apk add git
+        - gem install danger --version '~> 5.0'
+        - gem install danger-commit_lint danger-prose
+        - danger
