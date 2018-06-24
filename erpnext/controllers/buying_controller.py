@@ -515,13 +515,13 @@ class BuyingController(StockController):
 	def validate_budget(self):
 		if self.docstatus == 1:
 			for data in self.get('items'):
-				validate_expense_against_budget({
-					'item_code': data.item_code,
-					'item_group': data.item_group,
-					'posting_date': data.schedule_date,
-					'project': data.project,
-					'doctype': self.doctype
-				}, self.company)
+				args = data.as_dict()
+				args.update({
+					'doctype': self.doctype,
+					'company': self.company
+				})
+
+				validate_expense_against_budget(args)
 
 	def process_fixed_asset(self):
 		if self.doctype == 'Purchase Invoice' and not self.update_stock:
@@ -558,7 +558,8 @@ class BuyingController(StockController):
 						'actual_qty': d.qty,
 						'purchase_document_type': self.doctype,
 						'purchase_document_no': self.name,
-						'asset': d.asset
+						'asset': d.asset,
+						'location': d.asset_location
 					})
 					d.db_set('serial_no', serial_nos)
 
@@ -577,7 +578,6 @@ class BuyingController(StockController):
 			'doctype': 'Asset',
 			'item_code': row.item_code,
 			'asset_name': row.item_name,
-			'status': 'Receipt',
 			'naming_series': item_data.get('asset_naming_series') or 'AST',
 			'asset_category': item_data.get('asset_category'),
 			'location': row.asset_location,
@@ -663,6 +663,7 @@ class BuyingController(StockController):
 
 	def validate_items(self):
 		# validate items to see if they have is_purchase_item or is_subcontracted_item enabled
+		if self.doctype=="Material Request": return
 
 		if hasattr(self, "is_subcontracted") and self.is_subcontracted == 'Yes':
 			validate_item_type(self, "is_sub_contracted_item", "subcontracted")
