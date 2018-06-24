@@ -34,6 +34,15 @@ def get_data():
 			]
 		},
 		{
+			"label": _("Setup"),
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Agriculture Settings",
+				}
+			]
+		},
+		{
 			"label": _("Analytics"),
 			"items": [
 				{
